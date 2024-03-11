@@ -2,8 +2,65 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <title>問題カテゴリ別集計と合計</title>
   </head>
   <body>
-    hellow
+    <h2>カテゴリ別問題数</h2>
+    <table id="category-count">
+      <thead>
+        <tr>
+          <th>カテゴリ</th>
+          <th>問題数</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- カテゴリ別の問題数が挿入される -->
+      </tbody>
+      <tfoot>
+        <!-- 全カテゴリの問題合計が挿入される -->
+      </tfoot>
+    </table>
+
+    <script>
+      // 外部URLからデータを取得
+      fetch(
+        "https://raw.githubusercontent.com/kuma807/ctf/main/data/solved.json"
+      )
+        .then((response) => response.json()) // レスポンスをJSONとして解析
+        .then((jsonData) => {
+          // カテゴリごとの問題数を集計
+          let totalProblems = 0; // 全問題数のカウント用
+          const categoryCounts = jsonData.problems.reduce((acc, problem) => {
+            acc[problem.category] = (acc[problem.category] || 0) + 1;
+            totalProblems += 1; // 合計問題数を加算
+            return acc;
+          }, {});
+
+          // HTMLテーブルにカテゴリ別の問題数を表示
+          const tbody = document
+            .getElementById("category-count")
+            .getElementsByTagName("tbody")[0];
+          Object.entries(categoryCounts).forEach(([category, count]) => {
+            const row = tbody.insertRow();
+            const cell1 = row.insertCell(0);
+            const cell2 = row.insertCell(1);
+            cell1.textContent = category;
+            cell2.textContent = count;
+          });
+
+          // 全カテゴリの問題合計をテーブルのフッターに表示
+          const tfoot = document
+            .getElementById("category-count")
+            .getElementsByTagName("tfoot")[0];
+          const footerRow = tfoot.insertRow();
+          const footerCell1 = footerRow.insertCell(0);
+          const footerCell2 = footerRow.insertCell(1);
+          footerCell1.textContent = "合計";
+          footerCell2.textContent = totalProblems;
+        })
+        .catch((error) =>
+          console.error("データの取得中にエラーが発生しました:", error)
+        );
+    </script>
   </body>
 </html>
